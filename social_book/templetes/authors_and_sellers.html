@@ -1,0 +1,12 @@
+<form method="get" action="{% url 'authors_and_sellers' %}">
+    <input type="text" name="q" placeholder="Search users..." value="{{ query }}">
+    <button type="submit">Search</button>
+</form>
+
+<ul>
+    {% for user in users %}
+        <li>{{ user.username }} - {{ user.email }} - {{ user.address }}</li>
+    {% empty %}
+        <li>No users found.</li>
+    {% endfor %}
+</ul>
