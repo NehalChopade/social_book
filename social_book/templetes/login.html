@@ -60,7 +60,7 @@
                         <div class="login-title">
                             <h2 class="text-center text-primary">Login To Social_Book</h2>
                         </div>
-                        <form method="post">
+                        <form method="post" action="{% url 'login' %}">
                             {% csrf_token %}
                             {{ form.as_p }}
                             <div class="row pb-30">

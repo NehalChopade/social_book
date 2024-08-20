@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser
+from .models import CustomUser, UploadedFile
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -23,6 +23,19 @@ class CustomLoginForm(AuthenticationForm):
             'placeholder': '**********'
         })
     )
+
+class FileUploadForm(forms.ModelForm):
+    class Meta:
+        model = UploadedFile
+        fields = ['file', 'title', 'description', 'visibility', 'cost', 'year_published']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'accept': 'application/pdf,image/jpeg'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'visibility': forms.CheckboxInput(attrs={'class': 'form-control'}),
+            'cost': forms.NumberInput(attrs={'class': 'form-control'}),
+            'year_published': forms.NumberInput(attrs={'class': 'form-control'}),
+        }    
     
 
                 
