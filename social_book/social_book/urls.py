@@ -15,8 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from myapp.views import register, CustomLoginView, authors_and_sellers, upload_books, view_uploaded_files
+from django.urls import include, path
+from myapp.views import UserUploadedFileListView, register, CustomLoginView, authors_and_sellers, upload_books, view_uploaded_files
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +25,9 @@ urlpatterns = [
     path('authors-and-sellers/', authors_and_sellers, name='authors_and_sellers'),
     path('upload-books/', upload_books, name='upload_books'),
     path('view-uploaded-files/', view_uploaded_files, name='view_uploaded_files'),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
+    path('my-files/', UserUploadedFileListView.as_view(), name='user-files'),
+    
 ]
+

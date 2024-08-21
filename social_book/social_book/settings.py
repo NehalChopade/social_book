@@ -39,10 +39,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp',
     'crispy_forms',
+    'rest_framework',
+    'djoser',
 ]
 
 AUTH_USER_MODEL = 'myapp.CustomUser'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'  # or 'bootstrap5'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+DJOSER = {
+    'LOGIN_FIELD': 'username',
+    'SERIALIZERS': {},
+}
 
 
 MIDDLEWARE = [
@@ -79,10 +95,20 @@ WSGI_APPLICATION = 'social_book.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'social',
+        'USER': 'nehal',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # Or your PostgreSQL host
+        'PORT': '5432',       # Default PostgreSQL port
     }
 }
 
