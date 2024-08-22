@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from myapp.views import UserUploadedFileListView, register, CustomLoginView, authors_and_sellers, upload_books, view_uploaded_files
+from myapp.views import CustomTokenObtainPairView, UserUploadedFileListView, register, CustomLoginView, authors_and_sellers, upload_books, verify_otp, view_uploaded_files
+from two_factor.urls import urlpatterns as tf_urls
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,9 +27,13 @@ urlpatterns = [
     path('authors-and-sellers/', authors_and_sellers, name='authors_and_sellers'),
     path('upload-books/', upload_books, name='upload_books'),
     path('view-uploaded-files/', view_uploaded_files, name='view_uploaded_files'),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
+    # path('auth/', include('djoser.urls')),
+    # path('auth/', include('djoser.urls.jwt')),
     path('my-files/', UserUploadedFileListView.as_view(), name='user-files'),
-    
+    # path('', include(tf_urls)),  # Include the two-factor authentication URLs
+    path('auth/verify-otp/', verify_otp, name='verify-otp'), 
+    path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt-create'),
 ]
+    
+
 

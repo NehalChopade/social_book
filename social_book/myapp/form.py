@@ -9,7 +9,6 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = ('username', 'email', 'birth_year', 'address', 'public_visibility')  
 
-
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -35,6 +34,7 @@ class FileUploadForm(forms.ModelForm):
             'visibility': forms.CheckboxInput(attrs={'class': 'form-control'}),
             'cost': forms.NumberInput(attrs={'class': 'form-control'}),
             'year_published': forms.NumberInput(attrs={'class': 'form-control'}),
+            
         }    
     
 

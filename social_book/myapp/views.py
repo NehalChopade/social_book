@@ -8,6 +8,19 @@ from .models import CustomUser,UploadedFile
 from .form import FileUploadForm
 from rest_framework import generics, permissions
 from .serializers import UploadedFileSerializer
+# from two_factor.views import LoginView
+from django.contrib.auth import authenticate
+from django_otp.plugins.otp_email.models import EmailDevice
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
+
 
 
 def register(request):
@@ -29,17 +42,6 @@ class CustomLoginView(auth_views.LoginView):
     def get_redirect_url(self):
         # Redirect to 'upload-books/' after successful login
         return reverse_lazy('upload_books')
-
-# def authors_and_sellers(request):
-#     query = request.GET.get('q', '')
-#     users = CustomUser.objects.filter(public_visibility=True)
-#     if query:
-#         users = users.filter(email_icontains=query)
-#     return render(request, 'authors_and_sellers.html', {'users': users, 'query': query})
-
-# def authors_and_sellers(request):
-#     users = CustomUser.objects.filter(public_visibility=True)
-#     return render(request, 'authors_and_sellers.html', {'users': users})
 
 def authors_and_sellers(request):
     query = request.GET.get('q', '')  # Get the search query from the request
@@ -84,3 +86,74 @@ class UserUploadedFileListView(generics.ListAPIView):
         return UploadedFile.objects.filter(user=self.request.user)
 
 
+
+def send_otp(request, user):
+    device = user.get_or_create_email_otp_device()
+    if device.confirmed:
+        device.generate_token()
+        device.save()
+        send_mail(
+            'Your OTP Code',
+            f'Your OTP code is {device.token}.',
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False,
+        )
+    # Instead of redirecting, return a message
+    return JsonResponse({'message': 'OTP sent. Please verify by sending a POST request to /auth/verify-otp/ with your OTP.'})
+
+
+User = get_user_model()
+
+@csrf_exempt
+def verify_otp(request):
+    if request.method == "POST":
+        otp = request.POST.get("otp")
+        username = request.POST.get("username")
+
+        if not otp or not username:
+            return JsonResponse({'error': 'OTP and username are required'}, status=400)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        device = user.get_or_create_email_otp_device()
+
+        if device.verify_token(otp):
+            device.confirmed = True
+            device.save()
+
+            # Generate access and refresh tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            # Return the tokens in a JSON response
+            return JsonResponse({
+                'access_token': access_token,
+                'refresh_token': refresh_token
+            })
+
+        else:
+            # Return an error message in JSON response if OTP is invalid
+            return JsonResponse({
+                'error': 'Invalid OTP'
+            }, status=400)
+    
+    # Return an error if the method is not POST
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        user = authenticate(
+            username=request.data.get('username'),
+            password=request.data.get('password')
+        )
+        if user is not None:
+            # Send OTP email
+            return send_otp(request, user)
+        return response
+    

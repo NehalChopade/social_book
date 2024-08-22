@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from datetime import date
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
+from django_otp.models import Device
+from django_otp.plugins.otp_email.models import EmailDevice
+
 # Create your models here.
 
 class CustomUser(AbstractUser):
@@ -16,6 +19,10 @@ class CustomUser(AbstractUser):
         if self.birth_year:
             return date.today().year - self.birth_year
         return None
+    
+    def get_or_create_email_otp_device(self):
+        device, created = EmailDevice.objects.get_or_create(user=self, name='default')
+        return device
     
 class UploadedFile(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

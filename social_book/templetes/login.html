@@ -61,8 +61,8 @@
                             <h2 class="text-center text-primary">Login To Social_Book</h2>
                         </div>
                         <form method="post" action="{% url 'login' %}">
-                            {% csrf_token %}
-                            {{ form.as_p }}
+                            {% csrf_token %} 
+                            {{ form.as_p }}   
                             <div class="row pb-30">
                                 <div class="col-6">
                                     <div class="custom-control custom-checkbox">

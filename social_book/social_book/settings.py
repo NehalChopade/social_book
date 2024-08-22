@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'rest_framework',
     'djoser',
+    'django_otp',
+    'django_otp.plugins.otp_email',  # Email OTP plugin
+    'two_factor',
 ]
 
 AUTH_USER_MODEL = 'myapp.CustomUser'
@@ -69,7 +72,25 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_otp.middleware.OTPMiddleware',
+    'two_factor.middleware.threadlocals.ThreadLocals',
 ]
+
+# Email settings (configure according to your email provider)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'nehal.frebud@gmail.com'
+EMAIL_HOST_PASSWORD = 'xjgk cily hmcd ymvm'
+
+# Two-factor authentication settings
+TWO_FACTOR_CALL_GATEWAY = 'two_factor.gateways.fake.Fake'
+TWO_FACTOR_SMS_GATEWAY = 'two_factor.gateways.fake.Fake'
+TWO_FACTOR_EMAIL_GATEWAY = True  # Ensure email is enabled for OTP
+
+# Default 'from' email
+DEFAULT_FROM_EMAIL = 'nehal.frebud@gmail.com'
 
 ROOT_URLCONF = 'social_book.urls'
 
@@ -101,6 +122,7 @@ WSGI_APPLICATION = 'social_book.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
