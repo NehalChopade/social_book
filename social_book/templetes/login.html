@@ -3,7 +3,6 @@
 <html>
 <head>
     {% load static %}
-    <!-- (Your existing head content) -->
      <!-- Basic Page Info -->
 	<meta charset="utf-8">
 	<title>DeskApp - Bootstrap Admin Dashboard HTML Template</title>
@@ -32,8 +31,30 @@
 
 		gtag('config', 'UA-119386393-1');
 	</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.querySelector('form');
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+    
+                // Show OTP Popup (use your modal implementation)
+                const otpPopup = document.getElementById('otpPopup');
+                otpPopup.style.display = 'block';
+            });
+        });
+    </script>
 </head>
 <body class="login-page">
+    <div id="otpPopup" style="display:none;">
+        <div class="otp-popup-content">
+            <h2>Enter OTP</h2>
+            <form method="post" action="{% url 'verify_otp' %}">
+                {% csrf_token %}
+                <input type="text" name="otp" placeholder="Enter OTP">
+                <button type="submit">Verify</button>
+            </form>
+        </div>
+    </div>
     <div class="login-header box-shadow">
         <!-- (Your existing header content) -->
         <div class="container-fluid d-flex justify-content-between align-items-center">

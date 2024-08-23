@@ -2,8 +2,9 @@ from functools import wraps
 from django.shortcuts import render,redirect
 from django.contrib.auth import login
 from django.urls import reverse_lazy
-from .form import CustomLoginForm, CustomUserCreationForm
-from django.contrib.auth import views as auth_views
+from .form import CustomLoginForm, CustomUserCreationForm,OTPVerificationForm
+# from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import LoginView
 from .models import CustomUser,UploadedFile
 from .form import FileUploadForm
 from rest_framework import generics, permissions
@@ -23,6 +24,7 @@ from django.contrib.auth import get_user_model
 
 
 
+
 def register(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -35,13 +37,59 @@ def register(request):
     return render(request, 'register.html', {'form': form})
    
 
-class CustomLoginView(auth_views.LoginView):
+User = get_user_model()
+
+class CustomLoginView(LoginView):
     template_name = 'login.html'
     form_class = CustomLoginForm
 
-    def get_redirect_url(self):
-        # Redirect to 'upload-books/' after successful login
-        return reverse_lazy('upload_books')
+    def form_valid(self, form):
+        # Authenticate user
+        user = form.get_user()
+        email_device, created = EmailDevice.objects.get_or_create(user=user)
+
+        # Generate OTP
+        email_device.generate_token()
+        email_device.save()
+
+        # Send OTP via email
+        send_mail(
+            'Your OTP Code',
+            f'Your OTP code is {email_device.token}',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+
+        # Redirect to OTP verification page
+        self.request.session['pre_2fa_user_id'] = user.id
+        return redirect('verify_otp')
+
+class OTPVerificationView(LoginView):
+    template_name = 'verify_otp.html'
+    form_class = OTPVerificationForm
+
+    def get_form_kwargs(self):
+        # Use this method to add request to form kwargs if needed
+        kwargs = super().get_form_kwargs()
+        return kwargs
+
+    def form_valid(self, form):
+        user_id = self.request.session.get('pre_2fa_user_id')
+        if not user_id:
+            return redirect('login')
+
+        user = User.objects.get(id=user_id)
+        email_device = EmailDevice.objects.get(user=user)
+
+        if email_device.verify_token(form.cleaned_data['otp']):
+            login(self.request, user)
+            del self.request.session['pre_2fa_user_id']
+            return redirect(reverse_lazy('upload_books'))
+        else:
+            form.add_error('otp', 'Invalid OTP')
+            return self.form_invalid(form)
+        
 
 def authors_and_sellers(request):
     query = request.GET.get('q', '')  # Get the search query from the request

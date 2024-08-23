@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from myapp.views import CustomTokenObtainPairView, UserUploadedFileListView, register, CustomLoginView, authors_and_sellers, upload_books, verify_otp, view_uploaded_files
+from myapp.views import CustomTokenObtainPairView, OTPVerificationView, UserUploadedFileListView, register, CustomLoginView, authors_and_sellers, upload_books, verify_otp, view_uploaded_files
 from two_factor.urls import urlpatterns as tf_urls
 
 
@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', register,name='register'),
     path('', CustomLoginView.as_view(), name='login'),
+    path('verify-otp/', OTPVerificationView.as_view(), name='verify_otp'),
     path('authors-and-sellers/', authors_and_sellers, name='authors_and_sellers'),
     path('upload-books/', upload_books, name='upload_books'),
     path('view-uploaded-files/', view_uploaded_files, name='view_uploaded_files'),
@@ -31,7 +32,7 @@ urlpatterns = [
     # path('auth/', include('djoser.urls.jwt')),
     path('my-files/', UserUploadedFileListView.as_view(), name='user-files'),
     # path('', include(tf_urls)),  # Include the two-factor authentication URLs
-    path('auth/verify-otp/', verify_otp, name='verify-otp'), 
+    path('auth/verify-otp-api/', verify_otp, name='verify-otp-api'), 
     path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt-create'),
 ]
     

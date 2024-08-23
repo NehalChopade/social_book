@@ -9,6 +9,13 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = ('username', 'email', 'birth_year', 'address', 'public_visibility')  
 
+class OTPVerificationForm(forms.Form):
+    otp = forms.CharField(max_length=6, widget=forms.TextInput(attrs={'placeholder': 'Enter OTP'}))
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
