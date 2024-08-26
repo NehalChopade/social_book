@@ -33,9 +33,10 @@ class CustomLoginForm(AuthenticationForm):
 class FileUploadForm(forms.ModelForm):
     class Meta:
         model = UploadedFile
-        fields = ['file', 'title', 'description', 'visibility', 'cost', 'year_published']
+        fields = ['file', 'cover_image', 'title', 'description', 'visibility', 'cost', 'year_published']
         widgets = {
             'file': forms.ClearableFileInput(attrs={'accept': 'application/pdf,image/jpeg'}),
+            'cover_image': forms.ClearableFileInput(attrs={'accept': 'image/jpeg,image/png'}),  # New widget for cover_image
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'visibility': forms.CheckboxInput(attrs={'class': 'form-control'}),

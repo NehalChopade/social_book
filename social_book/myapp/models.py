@@ -24,11 +24,28 @@ class CustomUser(AbstractUser):
         device, created = EmailDevice.objects.get_or_create(user=self, name='default')
         return device
     
+# class UploadedFile(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     file = models.FileField(upload_to='uploads/', validators=[
+#         FileExtensionValidator(allowed_extensions=['pdf', 'jpeg', 'jpg'])
+#     ])
+#     title = models.CharField(max_length=255)
+#     description = models.TextField(blank=True)
+#     visibility = models.BooleanField(default=True)
+#     cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     year_published = models.PositiveIntegerField(null=True, blank=True)
+#     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return self.title   
 class UploadedFile(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     file = models.FileField(upload_to='uploads/', validators=[
         FileExtensionValidator(allowed_extensions=['pdf', 'jpeg', 'jpg'])
     ])
+    cover_image = models.ImageField(upload_to='cover_images/', validators=[
+        FileExtensionValidator(allowed_extensions=['jpeg', 'jpg', 'png'])
+    ], null=True, blank=True)  # New field for the cover image
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     visibility = models.BooleanField(default=True)
@@ -37,4 +54,4 @@ class UploadedFile(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.title    
+        return self.title 

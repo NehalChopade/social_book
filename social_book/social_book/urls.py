@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import include, path
 from myapp.views import CustomTokenObtainPairView, OTPVerificationView, UserUploadedFileListView, register, CustomLoginView, authors_and_sellers, upload_books, verify_otp, view_uploaded_files
 from two_factor.urls import urlpatterns as tf_urls
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,7 +35,8 @@ urlpatterns = [
     # path('', include(tf_urls)),  # Include the two-factor authentication URLs
     path('auth/verify-otp-api/', verify_otp, name='verify-otp-api'), 
     path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt-create'),
-]
+    
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     
 
 

@@ -100,6 +100,7 @@ def authors_and_sellers(request):
     
     return render(request, 'authors_and_sellers.html', {'users': users})
 
+
 def upload_books(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
